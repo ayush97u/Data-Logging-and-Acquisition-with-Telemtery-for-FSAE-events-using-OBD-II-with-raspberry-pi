@@ -22,63 +22,68 @@ class Current_Log:
 	  self.time = datetime.datetime.now()			#Current Timestamp
 
 	#Gear shifts
-	def inc_gear_number():
-		self.gear_number++
-	def dec_gear_number():
-		self.gear_number--
+	#def inc_gear_number():
+	#	self.gear_number++
+	#def dec_gear_number():
+	#	self.gear_number--
 
 	##------------------------------------------------------------------------------------##
 	#Setters
-	#speed
+	#gear
+  def set_gear(gear_no):
+    self.gear_number = gear_no
+  #speed
 	def set_speed(speed):
 		self.speed=speed
    	#rpm
-   	def set_rpm(rpm):
-   		self.rpm=rpm
-   	#tps
-   	def set_tps(tps):
-   		self.tps=tps
-   	#cg_acceleration
-   	def set_cg_acceleration(cg):
-   		self.cg_acceleration=cg
-  	#oil_temperature
-  	def set_oil_temperature(temperature):
-  		self.oil_temperature=temperature
-  	#steering_wheel_angle
-  	def set_steering_wheel_angle(angle):
-  		self.steering_wheel_angle=angle
-  	#fuel_level
-  	def set_fuel_level(level):
-  		self.fuel_level=level
-  	#engine run time in seconds
-  	def set_engine_run_time(seconds):
-  		self.engine_run_time=seconds
-  	##------------------------------------------------------------------------------------##
-  	#Getters
-  	#speed
-	def get_speed():
-		return self.speed
-   	#rpm
-   	def get_rpm():
-   		return self.rpm
-   	#tps
-   	def get_tps(tps):
-   		return self.tps
-   	#cg_acceleration
-   	def get_cg_acceleration():
-   		return self.cg_acceleration
-  	#oil_temperature
-  	def get_oil_temperature()
-  		return self.oil_temperature
-  	#steering_wheel_angle
-  	def get_steering_wheel_angle()
-  		return self.steering_wheel_angle
+ 	def set_rpm(rpm):
+ 		self.rpm=rpm
+ 	#tps
+ 	def set_tps(tps):
+ 		self.tps=tps
+ 	#cg_acceleration
+ 	def set_cg_acceleration(cg):
+ 		self.cg_acceleration=cg
+	#oil_temperature
+	def set_oil_temperature(temperature):
+		self.oil_temperature=temperature
+	#steering_wheel_angle
+	def set_steering_wheel_angle(angle):
+		self.steering_wheel_angle=angle
 	#fuel_level
-  	def get_fuel_level()
-  		return self.fuel_level
-  	#engine run time	
-  	def set_engine_run_time(seconds):
-		return self.engine_run_time
+	def set_fuel_level(level):
+		self.fuel_level=level
+	#engine run time in seconds
+	def set_engine_run_time(seconds):
+		self.engine_run_time=seconds
+	##------------------------------------------------------------------------------------##
+	#Getters
+	#speed
+ def get_speed():
+	return self.speed
+ 	#rpm
+ 	def get_rpm():
+ 		return self.rpm
+ 	#tps
+ 	def get_tps(tps):
+ 		return self.tps
+ 	#cg_acceleration
+ 	def get_cg_acceleration():
+ 		return self.cg_acceleration
+	#oil_temperature
+	def get_oil_temperature()
+		return self.oil_temperature
+	#steering_wheel_angle
+	def get_steering_wheel_angle()
+		return self.steering_wheel_angle
+	#fuel_level
+	def get_fuel_level()
+		return self.fuel_level
+	#engine run time	
+	def set_engine_run_time(seconds):
+	return self.engine_run_time
+
+
   
 ##----------------------------------END OF CLASS-------------------------------------------##
 
@@ -93,8 +98,8 @@ connection = obd.Async()
 # Callback functions for different parameters for logging
 # Engine RPM callback
 def engine_rpm_cb(rpm):
-     log.set_rpm(rpm)
-     #firebase->send data to node
+  log.set_rpm(rpm)
+  #firebase->send data to node
 #Throttle Position
 def throttle_cb(tps):
 	log.set_tps(tps)
@@ -111,19 +116,23 @@ def fuel_level_cb(level):
 def run_time_cb(runtime):
 	log.set_engine_run_time(runtime)
   #firebase->send data to node
-
+#Current Gear engaged
+def gear_number_cb(gear_no):
+  log.set_gear(gear_no)
 ##-----------------------------------------------------------------------------------------##
 #Continous checking for any parameter that changes
 #Engine rpm 
 connection.watch(obd.commands.RPM, callback=engine_rpm_cb)
+#Current Gear engaged
+connection.watch(obd.commands.Gear, callback=gear_number_cb)
 #Throttle Position
-connection.watch(obd.commands.THROTTLE_POS, callback= throttle_cb)
+connection.watch(obd.commands.THROTTLE_POS, callback=throttle_cb)
 #Engine Oil Temp
-connection.watch(obd.commands.OIL_TEMP, callback= oil_cb)
+connection.watch(obd.commands.OIL_TEMP, callback=oil_cb)
 #Fuel Level
-connection.watch(obd.commands.FUEL_LEVEL, callback = fuel_level_cb)
+connection.watch(obd.commands.FUEL_LEVEL, callback=fuel_level_cb)
 #Engine RUn Time
-connection.watch(obd.commands.RUN_TIME, callback = run_time_cb)
+connection.watch(obd.commands.RUN_TIME, callback=run_time_cb)
 
 
 
@@ -133,3 +142,9 @@ connection.start()
 
 #End OBD connection
 connetcion.stop()
+
+
+#Extras
+#PID for RPM = 2121
+#PID for Gear_engaged = 2133
+#Formula for RPM PID = (((A*264.12)+B)/4)
